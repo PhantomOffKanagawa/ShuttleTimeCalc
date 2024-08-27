@@ -1,0 +1,55 @@
+/* Standardized Style */
+div.dark-mode-toggle {
+    position: fixed;
+    bottom: 1%;
+    right: 1%;
+    cursor: pointer;
+    font-size: larger;
+    z-index: 1;
+  }
+
+
+/* Animated Header */
+.animated-header {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.animated-header h1 {
+    position: relative;
+    transition: transform 0.5s cubic-bezier(0.545, -0.600, 0.900, 1.200);
+}
+
+.animated-header:hover h1 {
+    animation: slide-off-right 1.5s cubic-bezier(0.545, -0.600, 0.900, 1.200) forwards, slide-in-left 1s cubic-bezier(0.545, -0.600, 0.900, 1.200) 1s forwards;
+}
+
+@keyframes slide-off-right {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(200%);
+    }
+}
+
+@keyframes slide-in-left {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Custom CSS */
+.card {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.container {
+  max-width: 600px;
+  margin: auto;
+}
