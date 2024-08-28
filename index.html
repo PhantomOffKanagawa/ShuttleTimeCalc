@@ -6,16 +6,8 @@
     <title>Shuttle Time Planner</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <link href="./style.css" rel="stylesheet" />
   </head>
   <body class="dark">
@@ -32,9 +24,9 @@
         <label class="form-label" for="calculationType">Select Calculation</label>
         <div class="mb-1">
           <select id="calculationType" class="form-select">
-            <option value="calcA">Shuttle to School</option>
-            <option value="calcB">Next Shuttle to Apartment</option>
-            <option value="calcC">School to Apartment and Back</option>
+            <option value="calcA" id="StBoption">Shuttle to School</option>
+            <option value="calcB" id="StAoption">Next Shuttle to Apartment</option>
+            <option value="calcC" id="StAtBoption">School to Apartment and Back</option>
           </select>
         </div>
 
@@ -44,28 +36,17 @@
           <div class="calcA">
             <label for="classTime" class="form-label">Class Time</label>
             <input type="time" id="classTime" class="form-control mb-3" />
-            <label for="classTime" class="form-label"
-              >Walking Time (minutes)</label
-            >
-            <input
-              type="number"
-              id="walkingTime"
-              class="form-control input mb-3 skipRequired"
-              min="0"
-            />
+            <label for="classTime" class="form-label">Walking Time (minutes)</label>
+            <input type="number" id="walkingTime" class="form-control input mb-3 skipRequired" min="0" />
           </div>
           <div class="calcB">
-            <label for="shuttleTime" class="form-label">Earliest Time At Shuttle</label>
+            <label for="shuttleTime" class="form-label">Earliest Time At Shuttle Pickup</label>
             <input type="time" id="shuttleTime" class="form-control mb-3" />
           </div>
           <div class="calcC">
-            <label for="leaveTime" class="form-label"
-              >Earliest Time to Leave From School</label
-            >
+            <label id="leaveTimeLabel" for="leaveTime" class="form-label">Earliest Time to Leave From School</label>
             <input type="time" id="leaveTime" class="form-control input mb-3" />
-            <label for="returnTime" class="form-label"
-              >Latest Time to Return to School</label
-            >
+            <label id="returnTimeLabel" for="returnTime" class="form-label">Latest Time to Return to School</label>
             <input type="time" id="returnTime" class="form-control input mb-3" />
           </div>
 
@@ -75,14 +56,68 @@
       </div>
     </div>
 
+    <div class="expanding-card card shadow">
+      <div class="card-header bg-primary text-white">Shuttle Rules</div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-sm-6">
+            <label for="AShuttleName" class="form-label">Spot A:</label>
+            <input type="text" class="form-control mb-3" id="AShuttleName" placeholder="Apartment" />
+          </div>
+          <div class="col-sm-6">
+            <label for="BShuttleName" class="form-label">Spot B:</label>
+            <input type="text" class="form-control mb-3" id="BShuttleName" placeholder="School" />
+          </div>
+        </div>
+        <ul class="nav nav-tabs" id="rulesTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab" aria-controls="tab1" aria-selected="true">A -> B</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab" aria-controls="tab2" aria-selected="false">B -> A</button>
+          </li>
+        </ul>
+        <div class="tab-content mt-2" id="myTabContent">
+          <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+            <label for="fromAShuttleStart" class="form-label">First Shuttle:</label>
+            <input type="time" class="form-control mb-3" id="fromAShuttleStart" />
+            <label for="fromAShuttleEnd" class="form-label">Last Shuttle:</label>
+            <input type="time" class="form-control mb-3" id="fromAShuttleEnd" />
+            <label for="fromAShuttleInterval" class="form-label">Interval (minutes):</label>
+            <input type="number" class="form-control" id="fromAShuttleInterval" />
+            <div id="fromAShuttleIntervalHelp" class="form-text mb-3">How often the shuttle completes a loop</div>
+            <label for="fromAShuttleLength" class="form-label">Trip Length (minutes):</label>
+            <input type="number" class="form-control" id="fromAShuttleLength" />
+            <div id="fromAShuttleIntervalHelp" class="form-text mb-3">How long it takes from arrival A to be dropped off at B</div>
+          </div>
+          <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+            <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+              <label for="fromBShuttleStart" class="form-label">First Shuttle:</label>
+              <input type="time" class="form-control mb-3" id="fromBShuttleStart" />
+              <label for="fromBShuttleEnd" class="form-label">Last Shuttle:</label>
+              <input type="time" class="form-control mb-3" id="fromBShuttleEnd" />
+              <label for="fromBShuttleInterval" class="form-label">Interval (minutes):</label>
+              <input type="number" class="form-control" id="fromBShuttleInterval" />
+              <div id="fromBShuttleIntervalHelp" class="form-text mb-3">How often the shuttle completes a loop</div>
+              <label for="fromBShuttleLength" class="form-label">Trip Length (minutes):</label>
+              <input type="number" class="form-control" id="fromBShuttleLength" />
+              <div id="fromBShuttleIntervalHelp" class="form-text mb-3">How long it takes from arrival B to be dropped off at A</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary w-100" onclick="saveSettings()">Submit</button>
+      </div>
+    </div>
+
+    <div
+      id="toast-container"
+      class="toast-container position-fixed bottom-0 end-0 p-3"
+    ></div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-      crossorigin="anonymous"
-    ></script>
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="standard-scripts.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>

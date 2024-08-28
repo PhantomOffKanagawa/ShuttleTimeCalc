@@ -1,3 +1,35 @@
+// Personal Bootstrap Toast Sender
+function showToast(title, body) {
+  // Generate a unique ID for each toast
+  const toastId = 'toast' + Date.now();
+
+  // Create the toast HTML
+  const toastHTML = `
+      <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+              <strong class="me-auto">${title}</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+              ${body}
+          </div>
+      </div>
+  `;
+
+  // Append the toast to the container
+  document.getElementById('toast-container').insertAdjacentHTML('beforeend', toastHTML);
+
+  // Initialize and show the toast
+  const toastElement = document.getElementById(toastId);
+  const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
+  toast.show();
+
+  // Remove the toast from the DOM after it's hidden
+  toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+  });
+}
+
 // Bootstrap Dark and Light mode Handler
 // https://webvees.com/post/how-use-toggle-dark-and-light-mode-in-bootstrap-53/
 document.getElementById("darkModeIcon").addEventListener("click", function () {

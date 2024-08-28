@@ -44,6 +44,38 @@ div.dark-mode-toggle {
     }
 }
 
+
+/* Expanding Tab */
+.expanding-card {
+    position: fixed;
+    bottom: 0px;
+    left: 10px;
+    width: 450px;
+    transition: width 0.3s, height 0.3s;
+    resize: vertical;
+    overflow: hidden;
+    border-radius: 8px 8px 0px 0px !important;
+}
+.card-header {
+    border-radius: 8px 8px 0px 0px !important;
+    cursor: pointer;
+}
+.card-body {
+    display: none;
+}
+.card.show .card-body {
+    display: block;
+}
+.nav-tabs .nav-link {
+    cursor: pointer;
+}
+
+#tab1Help {
+    position: absolute;
+    right: 16px;
+
+}
+
 /* Custom CSS */
 .card {
   border-radius: 8px;

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expandable Card with Tabs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            transition: width 0.3s, height 0.3s;
+            resize: both;
+            overflow: hidden;
+        }
+        .card-header {
+            cursor: pointer;
+        }
+        .card-body {
+            display: none;
+        }
+        .card.show .card-body {
+            display: block;
+        }
+        .nav-tabs .nav-link {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        Expandable Card
+    </div>
+    <div class="card-body">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab" aria-controls="tab1" aria-selected="true">Tab 1</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab" aria-controls="tab2" aria-selected="false">Tab 2</button>
+            </li>
+        </ul>
+        <div class="tab-content mt-3" id="myTabContent">
+            <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+                <div class="mb-3">
+                    <label for="timeInput1" class="form-label">Time Input 1:</label>
+                    <input type="time" class="form-control" id="timeInput1">
+                </div>
+                <div class="mb-3">
+                    <label for="numberInput1" class="form-label">Number Input 1:</label>
+                    <input type="number" class="form-control" id="numberInput1">
+                </div>
+            </div>
+            <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+                <div class="mb-3">
+                    <label for="timeInput2" class="form-label">Time Input 2:</label>
+                    <input type="time" class="form-control" id="timeInput2">
+                </div>
+                <div class="mb-3">
+                    <label for="numberInput2" class="form-label">Number Input 2:</label>
+                    <input type="number" class="form-control" id="numberInput2">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelector('.card-header').addEventListener('click', function() {
+        document.querySelector('.card').classList.toggle('show');
+    });
+</script>
+
+</body>
+</html>

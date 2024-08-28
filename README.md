@@ -8,8 +8,12 @@
   - Find When to Take a Shuttle to School
   - Find When The Next Shuttle is
   - Do Both in Conjunction to Decide to Take a Break
+- Allows custom shuttle times
+  - Saves settings to local storage
 - Header Animation
 - Dark/Light Mode
 
 ## To-Do
-- Allow custom shuttle times
+- Ambiguate "class" terms
+- Allow A & B calculation from both locations
+- Mobile support 

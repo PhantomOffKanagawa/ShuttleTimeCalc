@@ -9,6 +9,7 @@ class Time {
   constructor(hours, minutes) {
     this.hours = hours;
     this.minutes = minutes;
+    this.addTime(0, 0)
   }
 
   /**
@@ -49,11 +50,134 @@ class Time {
    * @returns {String} string representing the time in 24 hour format
    */
   toString() {
-    return `${this.hours}:${
+    return `${
+      this.hours <= 9 ? `0${this.hours}` : this.hours
+    }:${
       this.minutes <= 9 ? `0${this.minutes}` : this.minutes
     }`;
   }
 }
+
+function timeFromString(timeString) {
+  const [hours, minutes] = timeString.split(":").map(Number);
+  return new Time(hours, minutes);
+}
+
+/** Class representing shuttle rules */
+class ShuttleRules {
+  constructor(start, end, interval, travel_time) {
+    this.start = start;
+    this.end = end;
+    this.interval = interval;
+    this.travel_time = travel_time;
+  }
+}
+
+/** Class representing settings */
+class Settings {
+  constructor(AName, BName, AtoBRules, BtoARules) {
+    this.AName = AName;
+    this.BName = BName;
+    this.AtoBRules = AtoBRules;
+    this.BtoARules = BtoARules;
+  }
+}
+
+var settings;
+/** Manage Settings Load/Save */
+
+/** Save Settings to Local Storage */
+function saveSettings() {
+  const settingsJSON = {
+
+  };
+
+  settingsJSON.AName = document.getElementById("AShuttleName").value;
+  settingsJSON.BName = document.getElementById("BShuttleName").value;
+
+  settingsJSON.AtoBRules = {};
+  settingsJSON.AtoBRules.start = document.getElementById("fromAShuttleStart").value;
+  settingsJSON.AtoBRules.end = document.getElementById("fromAShuttleEnd").value;
+  settingsJSON.AtoBRules.interval = document.getElementById("fromAShuttleInterval").value;
+  settingsJSON.AtoBRules.travel_time = document.getElementById("fromAShuttleLength").value;
+
+  settingsJSON.BtoARules = {};
+  settingsJSON.BtoARules.start = document.getElementById("fromBShuttleStart").value;
+  settingsJSON.BtoARules.end = document.getElementById("fromBShuttleEnd").value;
+  settingsJSON.BtoARules.interval = Number(document.getElementById("fromBShuttleInterval").value);
+  settingsJSON.BtoARules.travel_time = Number(document.getElementById("fromBShuttleLength").value);
+
+  localStorage.setItem("shuttleCalcSettingsJSON", JSON.stringify(settingsJSON));
+  populatePage();
+  showToast("Saved", "Settings saved to local storage!");
+}
+
+// Load calendar from local storage
+function loadSettings() {
+  var settingsData;
+  try {
+    console.log(localStorage.getItem("shuttleCalcSettingsJSON"));
+    settingsData = JSON.parse(localStorage.getItem("shuttleCalcSettingsJSON"));
+    console.log(settingsData);
+    if (settingsData == "") throw new Error();
+    showToast("Loaded", "Settings loaded from local storage!");
+  } catch (error) {
+    settingsData = {
+      AName: "Apartment",
+      BName: "School",
+      AtoBRules: {
+        start: "07:00",
+        end: "20:00",
+        interval: 30,
+        travel_time: 20,
+      },
+      BtoARules: {
+        start: "07:20",
+        end: "19:50",
+        interval: 30,
+        travel_time: 10,
+      },
+    }
+    showToast("Failed Loading", "No saved settings data found, loading defaults.");
+  }
+
+  const AtoBRules = new ShuttleRules(timeFromString(settingsData.AtoBRules.start), timeFromString(settingsData.AtoBRules.end), settingsData.AtoBRules.interval, settingsData.AtoBRules.travel_time);
+  const BtoARules = new ShuttleRules(timeFromString(settingsData.BtoARules.start), timeFromString(settingsData.BtoARules.end), settingsData.BtoARules.interval, settingsData.BtoARules.travel_time);
+
+  settings = new Settings(settingsData.AName, settingsData.BName, AtoBRules, BtoARules);
+  populateSettings();
+  populatePage();
+}
+loadSettings();
+
+function populateSettings() {
+  document.getElementById("AShuttleName").value = settings.AName;
+  document.getElementById("BShuttleName").value = settings.BName;
+
+  document.getElementById("fromAShuttleStart").value = settings.AtoBRules.start.toString();
+  document.getElementById("fromAShuttleEnd").value = settings.AtoBRules.end.toString();
+  document.getElementById("fromAShuttleInterval").value = settings.AtoBRules.interval;
+  document.getElementById("fromAShuttleLength").value = settings.AtoBRules.travel_time;
+
+  document.getElementById("fromBShuttleStart").value = settings.BtoARules.start.toString();
+  document.getElementById("fromBShuttleEnd").value = settings.BtoARules.end.toString();
+  document.getElementById("fromBShuttleInterval").value = settings.BtoARules.interval;
+  document.getElementById("fromBShuttleLength").value = settings.BtoARules.travel_time;
+}
+
+function populatePage() {
+  document.getElementById("StBoption").innerHTML = `Shuttle to ${settings.BName}`;
+  document.getElementById("StAoption").innerHTML = `Next Shuttle to ${settings.AName}`;
+  document.getElementById("StAtBoption").innerHTML = `${settings.BName} to ${settings.AName} and Back`;
+  
+  document.getElementById("leaveTimeLabel").innerHTML = `Earliest Time to Leave From ${settings.BName}`;
+  document.getElementById("returnTimeLabel").innerHTML = `Earliest Time to Return to ${settings.BName}`;  
+}
+
+// Handle shuttle rules popup
+document.querySelector('.card-header').addEventListener('click', function() {
+    document.querySelector('.expanding-card').classList.toggle('show');
+});
 
 // Handle form changes on selector change
 function handleFormSelector(selectorValue) {
@@ -83,21 +207,6 @@ document
     handleFormSelector(event.target.value);
   });
 
-// Shuttle rules for shuttles
-const toSchoolRules = {
-  start: new Time(7, 0),
-  end: new Time(20, 0),
-  interval: 30,
-  travel_time: 20,
-};
-
-const toApartmentRules = {
-  start: new Time(7, 20),
-  end: new Time(19, 50),
-  interval: 30,
-  travel_time: 10,
-};
-
 // On submit handle
 document
   .getElementById("shuttleForm")
@@ -116,7 +225,7 @@ document
       const shuttleTime = calculateShuttleOneWay(
         classTime,
         walkingTime,
-        toSchoolRules,
+        settings.AtoBRules,
         false
       );
 
@@ -129,7 +238,7 @@ document
       const shuttleTime = calculateShuttleOneWay(
         shuttleTimeString,
         0,
-        toApartmentRules,
+        settings.BtoARules,
         true
       );
 
@@ -249,8 +358,8 @@ function calculateShuttleToApartmentAndBack(leaveTimeString, returnTimeString) {
   const leaveTime = new Time(leaveHours, leaveMinutes);
   const returnTime = new Time(returnHours, returnMinutes);
 
-  let leaveShuttle = getNextShuttleTime(leaveTime, toApartmentRules, true);
-  let returnShuttle = getNextShuttleTime(returnTime, toSchoolRules, false);
+  let leaveShuttle = getNextShuttleTime(leaveTime, settings.BtoARules, true);
+  let returnShuttle = getNextShuttleTime(returnTime, settings.AtoBRules, false);
 
   const timeSpent =
     new Date(`2000-01-01T${returnShuttle.departure.toString()}Z`) -
