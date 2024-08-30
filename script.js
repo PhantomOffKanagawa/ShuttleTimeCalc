@@ -1,3 +1,13 @@
+// https://stackoverflow.com/questions/61676073/javascript-to-determine-if-browser-is-displaying-the-time-input-using-a-12-hour
+var local_time_string = (/chrom(e|ium)/i.test(navigator.userAgent) && !/msie|edge/i.test(navigator.userAgent)) ? false : (new Date(2020, 4, 8, 18, 0, 0, 0).toLocaleTimeString()),
+  hour_format = (typeof local_time_string == 'string') ? ((parseInt(local_time_string) == 18) ? 24 : 12) : null;
+
+if (hour_format == null) {
+  $('#parent-element').append('<input type="time" id="time-test" name="time-test" style="width: auto; position: absolute; opacity: 0; visibility: hidden;">');
+  hour_format = ($('#time-test').width() < 81) ? false : true;
+  $('#time-test').remove();
+}
+
 /** Class representing time */
 class Time {
   /**
@@ -56,7 +66,7 @@ class Time {
     date.setMilliseconds(0);
 
     // Convert the time to the local time format
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: hour_format });
   }
 
   toValue() {
@@ -218,7 +228,7 @@ function handleFormSelector(selectorValue) {
     input.setAttribute("required", "");
   });
 }
-handleFormSelector("calcA");
+handleFormSelector(document.getElementById("calculationType").value);
 
 document.getElementById("calculationType").addEventListener("change", function (event) {
   handleFormSelector(event.target.value);
