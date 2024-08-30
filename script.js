@@ -120,8 +120,10 @@ function loadSettings() {
     settingsData = JSON.parse(localStorage.getItem("shuttleCalcSettingsJSON"));
     console.log(settingsData);
     if (settingsData == "") throw new Error();
+    if (settingsData == null) throw new Error();
     showToast("Loaded", "Settings loaded from local storage!");
   } catch (error) {
+    console.log("Error Loading localStorage");
     settingsData = {
       AName: "Apartment",
       BName: "School",
@@ -141,12 +143,18 @@ function loadSettings() {
     showToast("Failed Loading", "No saved settings data found, loading defaults.");
   }
 
-  const AtoBRules = new ShuttleRules(timeFromString(settingsData.AtoBRules.start), timeFromString(settingsData.AtoBRules.end), settingsData.AtoBRules.interval, settingsData.AtoBRules.travel_time);
-  const BtoARules = new ShuttleRules(timeFromString(settingsData.BtoARules.start), timeFromString(settingsData.BtoARules.end), settingsData.BtoARules.interval, settingsData.BtoARules.travel_time);
-
-  settings = new Settings(settingsData.AName, settingsData.BName, AtoBRules, BtoARules);
-  populateSettings();
-  populatePage();
+  try {
+    const AtoBRules = new ShuttleRules(timeFromString(settingsData.AtoBRules.start), timeFromString(settingsData.AtoBRules.end), settingsData.AtoBRules.interval, settingsData.AtoBRules.travel_time);
+    const BtoARules = new ShuttleRules(timeFromString(settingsData.BtoARules.start), timeFromString(settingsData.BtoARules.end), settingsData.BtoARules.interval, settingsData.BtoARules.travel_time);
+  
+    settings = new Settings(settingsData.AName, settingsData.BName, AtoBRules, BtoARules);
+    populateSettings();
+    populatePage();
+  } catch (error) {
+    console.log("Error Loading localStorage");
+    localStorage.removeItem("shuttleCalcSettingsJSON");
+    loadSettings();
+  }
 }
 loadSettings();
 
@@ -259,7 +267,6 @@ document
         result.returnShuttle.departure.toString() +
         ".<br>Time spent at apartment: " +
         result.timeSpent.toString();
-      console.log(resultText);
     }
 
     document.getElementById("result").innerHTML = resultText;
@@ -298,7 +305,7 @@ function getNextShuttleTime(time, shuttleRules, shuttleArriveBeforeTime) {
     totalDifferenceInMinutes / shuttleRules.interval
   );
   if (shuttleArriveBeforeTime) intervalsPassed++;
-  console.log(`Number of shuttle intervals passed ${intervalsPassed}`);
+  // console.log(`Number of shuttle intervals passed ${intervalsPassed}`);
 
   const shuttleTime = new Time(
     shuttleRules.start.hours,
