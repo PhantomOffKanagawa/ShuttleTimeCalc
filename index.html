@@ -38,16 +38,19 @@
 
         <form id="shuttleForm" class="form-group row">
           <div class="calcA">
+            <div id="calcAHelp" class="form-text mb-3">Given a class time and time to walk from shuttle to class, calculate what shuttle to take and provide the time it leaves from A</div>
             <label for="classTime" class="form-label">Class Time</label>
             <input type="time" id="classTime" class="form-control mb-3" />
             <label for="classTime" class="form-label">Walking Time (minutes)</label>
             <input type="number" id="walkingTime" class="form-control input mb-3 skipRequired" min="0" />
           </div>
           <div class="calcB">
+            <!-- <div id="calcBHelp" class="form-text mb-3">Given an earliest time to arrival at the B shuttle, find</div> -->
             <label for="shuttleTime" class="form-label">Earliest Time At Shuttle Pickup</label>
             <input type="time" id="shuttleTime" class="form-control mb-3" />
           </div>
           <div class="calcC">
+            <div id="calcCHelp" class="form-text mb-3">Given a time to leave B and a time required to be back at B, calculate what shuttle to take both directions and how long is spent at A</div>
             <label id="leaveTimeLabel" for="leaveTime" class="form-label">Earliest Time to Leave From School</label>
             <input type="time" id="leaveTime" class="form-control input mb-3" />
             <label id="returnTimeLabel" for="returnTime" class="form-label">Latest Time to Return to School</label>

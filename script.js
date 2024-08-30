@@ -9,7 +9,7 @@ class Time {
   constructor(hours, minutes) {
     this.hours = hours;
     this.minutes = minutes;
-    this.addTime(0, 0)
+    this.addTime(0, 0);
   }
 
   /**
@@ -20,9 +20,7 @@ class Time {
    */
   addTime(hours, minutes) {
     const minutesRemainder = Math.floor((this.minutes + minutes) / 60);
-    const hoursRemainder = Math.floor(
-      (this.hours + hours + minutesRemainder) / 24
-    );
+    const hoursRemainder = Math.floor((this.hours + hours + minutesRemainder) / 24);
     this.minutes = (this.minutes + minutes) % 60;
     this.hours = (this.hours + hours + minutesRemainder) % 24;
     if (this.minutes < 0) this.minutes += 60;
@@ -47,9 +45,21 @@ class Time {
 
   /**
    * Returns time as string
-   * @returns {String} string representing the time in 24 hour format
+   * @returns {String} string representing the time in local format
    */
   toString() {
+    // Create a Date object with the specified hours and minutes
+    let date = new Date();
+    date.setHours(this.hours);
+    date.setMinutes(this.minutes);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+
+    // Convert the time to the local time format
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  toValue() {
     return `${
       this.hours <= 9 ? `0${this.hours}` : this.hours
     }:${
@@ -88,9 +98,7 @@ var settings;
 
 /** Save Settings to Local Storage */
 function saveSettings() {
-  const settingsJSON = {
-
-  };
+  const settingsJSON = {};
 
   settingsJSON.AName = document.getElementById("AShuttleName").value;
   settingsJSON.BName = document.getElementById("BShuttleName").value;
@@ -139,14 +147,14 @@ function loadSettings() {
         interval: 30,
         travel_time: 10,
       },
-    }
+    };
     showToast("Failed Loading", "No saved settings data found, loading defaults.");
   }
 
   try {
     const AtoBRules = new ShuttleRules(timeFromString(settingsData.AtoBRules.start), timeFromString(settingsData.AtoBRules.end), settingsData.AtoBRules.interval, settingsData.AtoBRules.travel_time);
     const BtoARules = new ShuttleRules(timeFromString(settingsData.BtoARules.start), timeFromString(settingsData.BtoARules.end), settingsData.BtoARules.interval, settingsData.BtoARules.travel_time);
-  
+
     settings = new Settings(settingsData.AName, settingsData.BName, AtoBRules, BtoARules);
     populateSettings();
     populatePage();
@@ -162,13 +170,13 @@ function populateSettings() {
   document.getElementById("AShuttleName").value = settings.AName;
   document.getElementById("BShuttleName").value = settings.BName;
 
-  document.getElementById("fromAShuttleStart").value = settings.AtoBRules.start.toString();
-  document.getElementById("fromAShuttleEnd").value = settings.AtoBRules.end.toString();
+  document.getElementById("fromAShuttleStart").value = settings.AtoBRules.start.toValue();
+  document.getElementById("fromAShuttleEnd").value = settings.AtoBRules.end.toValue();
   document.getElementById("fromAShuttleInterval").value = settings.AtoBRules.interval;
   document.getElementById("fromAShuttleLength").value = settings.AtoBRules.travel_time;
 
-  document.getElementById("fromBShuttleStart").value = settings.BtoARules.start.toString();
-  document.getElementById("fromBShuttleEnd").value = settings.BtoARules.end.toString();
+  document.getElementById("fromBShuttleStart").value = settings.BtoARules.start.toValue();
+  document.getElementById("fromBShuttleEnd").value = settings.BtoARules.end.toValue();
   document.getElementById("fromBShuttleInterval").value = settings.BtoARules.interval;
   document.getElementById("fromBShuttleLength").value = settings.BtoARules.travel_time;
 }
@@ -177,101 +185,90 @@ function populatePage() {
   document.getElementById("StBoption").innerHTML = `Shuttle to ${settings.BName}`;
   document.getElementById("StAoption").innerHTML = `Next Shuttle to ${settings.AName}`;
   document.getElementById("StAtBoption").innerHTML = `${settings.BName} to ${settings.AName} and Back`;
-  
+
   document.getElementById("leaveTimeLabel").innerHTML = `Earliest Time to Leave From ${settings.BName}`;
-  document.getElementById("returnTimeLabel").innerHTML = `Earliest Time to Return to ${settings.BName}`;  
+  document.getElementById("returnTimeLabel").innerHTML = `Earliest Time to Return to ${settings.BName}`;
+
+  document.getElementById("calcAHelp").innerHTML = `Given a class time and time to walk from shuttle to class, calculate what shuttle to take and provide the time it leaves from  ${settings.AName}.`;
+  document.getElementById("calcCHelp").innerHTML = `Given a time to leave ${settings.BName} and a time required to be back at ${settings.BName}, calculate what shuttle to take both directions and how long is spent at ${settings.AName}.`;
 }
 
 // Handle shuttle rules popup
-document.querySelector('.card-header').addEventListener('click', function() {
-    document.querySelector('.expanding-card').classList.toggle('show');
+document.querySelector(".card-header").addEventListener("click", function () {
+  document.querySelector(".expanding-card").classList.toggle("show");
 });
 
 // Handle form changes on selector change
 function handleFormSelector(selectorValue) {
-    const selectedCalculation = selectorValue;
-    document.querySelectorAll("#shuttleForm > div").forEach((section) => {
-      section.classList.add("d-none");
-    });
+  const selectedCalculation = selectorValue;
+  document.querySelectorAll("#shuttleForm > div").forEach((section) => {
+    section.classList.add("d-none");
+  });
 
-    document.querySelectorAll("#shuttleForm input").forEach((input) => {
-      input.removeAttribute("required");
-      input.value = "";
-    });
+  document.querySelectorAll("#shuttleForm input").forEach((input) => {
+    input.removeAttribute("required");
+    input.value = "";
+  });
 
-    document.querySelectorAll("." + selectedCalculation).forEach((section) => {
-      section.classList.remove("d-none");
-    });
+  document.querySelectorAll("." + selectedCalculation).forEach((section) => {
+    section.classList.remove("d-none");
+  });
 
-    document.querySelectorAll("." + selectedCalculation + " input:not(.skipRequired)").forEach((input) => {
-      input.setAttribute("required", "");
-    });
+  document.querySelectorAll("." + selectedCalculation + " input:not(.skipRequired)").forEach((input) => {
+    input.setAttribute("required", "");
+  });
 }
 handleFormSelector("calcA");
 
-document
-  .getElementById("calculationType")
-  .addEventListener("change", function (event) {
-    handleFormSelector(event.target.value);
-  });
+document.getElementById("calculationType").addEventListener("change", function (event) {
+  handleFormSelector(event.target.value);
+});
 
 // On submit handle
-document
-  .getElementById("shuttleForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-    const calculationType = document.getElementById("calculationType").value;
-    let resultText = "";
+document.getElementById("shuttleForm").addEventListener("submit", function (event) {
+  event.preventDefault();
+  const calculationType = document.getElementById("calculationType").value;
+  let resultText = "";
 
-    if (calculationType === "calcA") {
-      const classTime = document.getElementById("classTime").value;
-      const walkingTime =
-        document.getElementById("walkingTime").value == ""
-          ? 0
-          : parseInt(document.getElementById("walkingTime").value);
+  if (calculationType === "calcA") {
+    const classTime = document.getElementById("classTime").value;
+    const walkingTime = document.getElementById("walkingTime").value == "" ? 0 : parseInt(document.getElementById("walkingTime").value);
 
-      const shuttleTime = calculateShuttleOneWay(
-        classTime,
-        walkingTime,
-        settings.AtoBRules,
-        false
-      );
+    const shuttleTime = calculateShuttleOneWay(classTime, walkingTime, settings.AtoBRules, false);
 
-      resultText =
-        "You should catch the shuttle leaving at " +
-        shuttleTime.departure.toString();
+    console.log(typeof shuttleTime);
+    if (typeof shuttleTime == "object") {
+      resultText = "You should catch the shuttle leaving at " + shuttleTime.departure.toString();
       +" to arrive at time.";
-    } else if (calculationType === "calcB") {
-      const shuttleTimeString = document.getElementById("shuttleTime").value;
-      const shuttleTime = calculateShuttleOneWay(
-        shuttleTimeString,
-        0,
-        settings.BtoARules,
-        true
-      );
-
-      resultText =
-        "The next shuttle leaves at " +
-        shuttleTime.departure.toString() +
-        ".\n It arrives back at " +
-        shuttleTime.arrival.toString() +
-        ".";
-    } else if (calculationType === "calcC") {
-      const leaveTime = document.getElementById("leaveTime").value;
-      const returnTime = document.getElementById("returnTime").value;
-      const result = calculateShuttleToApartmentAndBack(leaveTime, returnTime);
-      resultText =
-        "You should leave school at " +
-        result.leaveShuttle.departure.toString() +
-        " and catch the shuttle back at " +
-        result.returnShuttle.departure.toString() +
-        ".<br>Time spent at apartment: " +
-        result.timeSpent.toString();
+    } else if (typeof shuttleTime == "string") {
+      resultText = shuttleTime;
     }
+  } else if (calculationType === "calcB") {
+    const shuttleTimeString = document.getElementById("shuttleTime").value;
+    const shuttleTime = calculateShuttleOneWay(shuttleTimeString, 0, settings.BtoARules, true);
 
-    document.getElementById("result").innerHTML = resultText;
-    document.getElementById("result").classList.remove("d-none");
-  });
+    if (typeof shuttleTime == "object") {
+      resultText = "The next shuttle leaves at " + shuttleTime.departure.toString() + ".\n It arrives back at " + shuttleTime.arrival.toString() + ".";
+    } else if (typeof shuttleTime == "string") {
+      resultText = shuttleTime;
+    }
+  } else if (calculationType === "calcC") {
+    const leaveTime = document.getElementById("leaveTime").value;
+    const returnTime = document.getElementById("returnTime").value;
+    const result = calculateShuttleToApartmentAndBack(leaveTime, returnTime);
+
+    console.log(result)
+
+    if (typeof result == "object") {
+      resultText = "You should leave school at " + result.leaveShuttle.departure.toString() + " and catch the shuttle back at " + result.returnShuttle.departure.toString() + ".<br>Time spent at apartment: " + result.timeSpent.toValue() + ".";
+    } else if (typeof result == "string") {
+      resultText = result;
+    }
+  }
+
+  document.getElementById("result").innerHTML = resultText;
+  document.getElementById("result").classList.remove("d-none");
+});
 
 /**
  * Function to find the next time a shuttle arrives
@@ -295,22 +292,15 @@ function getNextShuttleTime(time, shuttleRules, shuttleArriveBeforeTime) {
   timeToArrive.addTime(-shuttleRules.start.hours, -shuttleRules.start.minutes);
 
   // If finding shuttle before time
-  if (!shuttleArriveBeforeTime)
-    timeToArrive.addTime(0, -shuttleRules.travel_time);
+  if (!shuttleArriveBeforeTime) timeToArrive.addTime(0, -shuttleRules.travel_time);
 
-  const totalDifferenceInMinutes =
-    timeToArrive.hours * 60 + timeToArrive.minutes;
+  const totalDifferenceInMinutes = timeToArrive.hours * 60 + timeToArrive.minutes;
 
-  let intervalsPassed = parseInt(
-    totalDifferenceInMinutes / shuttleRules.interval
-  );
+  let intervalsPassed = parseInt(totalDifferenceInMinutes / shuttleRules.interval);
   if (shuttleArriveBeforeTime) intervalsPassed++;
   // console.log(`Number of shuttle intervals passed ${intervalsPassed}`);
 
-  const shuttleTime = new Time(
-    shuttleRules.start.hours,
-    shuttleRules.start.minutes
-  );
+  const shuttleTime = new Time(shuttleRules.start.hours, shuttleRules.start.minutes);
   shuttleTime.addTime(0, intervalsPassed * shuttleRules.interval);
 
   const arrivalTime = new Time(shuttleTime.hours, shuttleTime.minutes);
@@ -330,12 +320,7 @@ function getNextShuttleTime(time, shuttleRules, shuttleArriveBeforeTime) {
  * @param {Boolean} shuttleArriveBeforeTime True = Find Shuttle Arriving By time, False = Find Next Shuttle After time
  * @returns {Object} Two Time Values ["departure"]: when it leaves ["arrival"]: when the shuttle arrives
  */
-function calculateShuttleOneWay(
-  timeString,
-  errorTime,
-  shuttleRules,
-  shuttleArriveBeforeTime
-) {
+function calculateShuttleOneWay(timeString, errorTime, shuttleRules, shuttleArriveBeforeTime) {
   if (errorTime < 0) return "Walking time can't be negative";
 
   const [hours, minutes] = timeString.split(":").map(Number);
@@ -344,11 +329,7 @@ function calculateShuttleOneWay(
   // Roll back time by walking time
   time.addTime(0, -errorTime);
 
-  const shuttleTime = getNextShuttleTime(
-    time,
-    shuttleRules,
-    shuttleArriveBeforeTime
-  );
+  const shuttleTime = getNextShuttleTime(time, shuttleRules, shuttleArriveBeforeTime);
   return shuttleTime;
 }
 
@@ -368,9 +349,21 @@ function calculateShuttleToApartmentAndBack(leaveTimeString, returnTimeString) {
   let leaveShuttle = getNextShuttleTime(leaveTime, settings.BtoARules, true);
   let returnShuttle = getNextShuttleTime(returnTime, settings.AtoBRules, false);
 
-  const timeSpent =
-    new Date(`2000-01-01T${returnShuttle.departure.toString()}Z`) -
-    new Date(`2000-01-01T${leaveShuttle.arrival.toString()}Z`);
+  console.log(leaveShuttle)
+  console.log(returnShuttle)
+
+  if (typeof leaveShuttle == "string") {
+    return `For shuttle leaving ${settings.BName}. ${leaveShuttle}.`;
+  }
+  if (typeof returnShuttle == "string") {
+    return `For shuttle returning to ${settings.BName}. ${returnShuttle}.`;
+  }
+
+  if (leaveShuttle.arrival.compare(returnShuttle.departure) > 0) {
+    return "You cannot leave after you are required to return."
+  }
+
+  const timeSpent = new Date(`2000-01-01T${returnShuttle.departure.toValue()}Z`) - new Date(`2000-01-01T${leaveShuttle.arrival.toValue()}Z`);
   const hoursSpent = Math.floor(timeSpent / (1000 * 60 * 60));
   const minutesSpent = Math.floor((timeSpent % (1000 * 60 * 60)) / (1000 * 60));
 
